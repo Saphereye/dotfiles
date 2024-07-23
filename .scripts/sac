@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# author: Saphereye
+# description: Search All Commands (sac)
+# Uses fzf to search and shows the man or help page (whichever is available).
+set -eo pipefail
+
+# Function to determine if a command is a script and display its content with syntax highlighting
+show_command_info() {
+  local cmd="$1"
+  local cmd_path
+
+  cmd_path=$(command -v "$cmd")
+  if [ -f "$cmd_path" ] && head -n 1 "$cmd_path" | grep -q '^#!'; then
+    # If the command is a script, show its content with syntax highlighting using bat
+    bat --color=always --style=plain "$cmd_path" || cat "$cmd_path"
+  else
+    # Otherwise, try to show the man page or --help output
+    man "$cmd" 2>/dev/null || "$cmd" --help 2>/dev/null || echo "No manual, help, or script available for $cmd"
+  fi
+}
+
+export -f show_command_info
+
+compgen -c | # list all commands
+  fzf --preview 'bash -c "show_command_info {}"' --preview-window=right:60%:wrap | # fuzzy search and preview the manpage, --help output, or script content with syntax highlighting
+  xargs -r -I {} bash -c 'show_command_info {} | less -R' # show manpage, --help output, or script content with syntax highlighting

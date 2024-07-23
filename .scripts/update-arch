@@ -1,0 +1,48 @@
+#!/usr/bin/bash
+set -uo pipefail
+
+echo "== Checking for available updates ... =="
+available_updates=$(checkupdates)
+
+if [ -z "$available_updates" ]; then
+    echo "== Your system is already up-to-date. Exiting. =="
+    exit 0
+fi
+
+number_of_updates=$(echo "$available_updates" | wc -l)
+echo "== You have $number_of_updates update(s) available. =="
+
+# Check if archlinux-keyring is in the updates list
+# If it is, update it first, because it is required to verify the other packages.
+if echo "$available_updates" | grep -q '^archlinux-keyring '; then
+    echo "== Updating Arch keyring ... =="
+    if ! sudo pacman -Sy archlinux-keyring; then
+        echo "== Failed to update Arch keyring. Exiting. =="
+        exit 1
+    fi
+else
+    echo "== Arch keyring is already up-to-date. =="
+fi
+
+echo "== Updating whole system ... =="
+notify-send "System Update" "Updating system"
+sudo pacman -Syu
+update_status=$?
+
+if [ "$update_status" -eq 1 ]; then
+    echo "== Update process was cancelled by the user. Exiting. =="
+    exit 0
+elif [ "$update_status" -ne 0 ]; then
+    echo "== Failed to update system. Exiting. =="
+    exit 1
+fi
+
+echo "== Calling the cache cleaning utility ... =="
+notify-send "Cache Cleaning" "Calling the cache cleaning utility"
+if ! sudo paccache -rk1; then
+    echo "== Failed to clean cache. Exiting. =="
+    exit 1
+fi
+
+echo "== Update process complete. =="
+notify-send "System Update" "Update process complete"
