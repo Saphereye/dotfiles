@@ -1,0 +1,27 @@
+#!/bin/bash
+# author: Saphereye
+# Script to (G)et the (L)ast (C)ommand you want to re-run from your history
+
+HISTFILE=~/.bash_history
+
+# Ensure that fzf is installed
+if ! command -v fzf &> /dev/null
+then
+    echo "fzf could not be found, please install it."
+    exit 1
+fi
+
+# Ensure that history file exists
+if [ ! -f "$HISTFILE" ]; then
+    echo "History file $HISTFILE does not exist."
+    exit 1
+fi
+
+# Get the command history, select a command using fzf, and execute it
+command=$(tac $HISTFILE | sort | uniq | tac | fzf)
+
+if [ -n "$command" ]; then
+    eval "$command"
+else
+    echo "No command selected."
+fi

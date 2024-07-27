@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
 # author: Saphereye
-# description: Search All Commands (sac)
+# Script to (S)earch for (A)ll available (C)ommands.
 # Uses fzf to search and shows the man or help page (whichever is available).
 set -eo pipefail
+
+# Function to check if all dependencies are installed
+check_dependencies() {
+  local dependencies=(fzf bat less xargs)
+  for dep in "${dependencies[@]}"; do
+    if ! command -v "$dep" &>/dev/null; then
+      echo "$dep could not be found, please install it."
+      exit 1
+    fi
+  done
+}
 
 # Function to determine if a command is a script and display its content with syntax highlighting
 show_command_info() {
@@ -20,6 +31,9 @@ show_command_info() {
 }
 
 export -f show_command_info
+export -f check_dependencies
+
+check_dependencies
 
 compgen -c | # list all commands
   fzf --preview 'bash -c "show_command_info {}"' --preview-window=right:60%:wrap | # fuzzy search and preview the manpage, --help output, or script content with syntax highlighting

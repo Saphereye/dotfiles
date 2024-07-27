@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+set -euo pipefail
+
+du -ah ~ | sort -hr | head -n 20

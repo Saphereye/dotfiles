@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+ls -l /usr/bin/ | \
+  awk '{ print $5" "$9 }' | \
+  sort --numeric-sort --reverse | \
+  awk '$1/(1024*1024) > 2 { print $2" "$1/(1024 * 1024)"M" }' | \
+  less
