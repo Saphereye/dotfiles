@@ -15,7 +15,15 @@ setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE SHARE_HISTORY
 autoload -Uz compinit && compinit
 autoload -Uz edit-command-line
 zle -N edit-command-line
-bindkey '^e' edit-command-line
+
+bindkey '^e' edit-command-line       # Start editor
+bindkey "^[[H"  beginning-of-line    # Home
+bindkey "^[[F"  end-of-line          # End
+bindkey "^[[3~" delete-char          # Delete
+bindkey "^[[1;5C" forward-word       # Ctrl+Right
+bindkey "^[[1;5D" backward-word      # Ctrl+Left
+bindkey "^[[A"  up-line-or-history   # Up arrow
+bindkey "^[[B"  down-line-or-history # Down arrow
 
 alias l='eza --icons'
 alias ls='eza --icons'
