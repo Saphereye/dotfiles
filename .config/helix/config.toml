@@ -1,0 +1,9 @@
+theme = "carbonfox"
+
+[keys]
+insert = { "C-[" = "normal_mode" }
+normal = { "ret" = "goto_word" }
+
+[editor]
+cursor-shape = { insert = "bar" }
+soft-wrap = { enable = true }
